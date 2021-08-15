@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yossarian0916.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="Linux系统结构Linux系统有4个主要部分：内核，shell，文件系统和应用程序。内核，shell和文件系统一起形成了基本的操作系统，它们使用户可以运行程序、管理文件并使用系统。    Linux内核 内核是操作系统的核心，负责管理系统的进程、内存、设备驱动程序、文件和网络系统。  **系统调用接口: **SCI层提供了某些机制执行从用户空间到内核的函数调用。SCI实际上是一个非常有用的函数调">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux系统结构">
+<meta property="og:url" content="https://yossarian0916.github.io/2019/11/10/linux_structure/index.html">
+<meta property="og:site_name" content="乱笔">
+<meta property="og:description" content="Linux系统结构Linux系统有4个主要部分：内核，shell，文件系统和应用程序。内核，shell和文件系统一起形成了基本的操作系统，它们使用户可以运行程序、管理文件并使用系统。    Linux内核 内核是操作系统的核心，负责管理系统的进程、内存、设备驱动程序、文件和网络系统。  **系统调用接口: **SCI层提供了某些机制执行从用户空间到内核的函数调用。SCI实际上是一个非常有用的函数调">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://yossarian0916.github.io/images/linux_structure.png">
+<meta property="og:image" content="https://yossarian0916.github.io/images/linux_kernel.jpg">
+<meta property="article:published_time" content="2019-11-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-15T16:07:21.539Z">
+<meta property="article:author" content="Yossarian42">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="OS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yossarian0916.github.io/images/linux_structure.png">
+
+<link rel="canonical" href="https://yossarian0916.github.io/2019/11/10/linux_structure/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+<link rel="stylesheet" type="text/css" href="/css/injector.css" />
+  <title>Linux系统结构 | 乱笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">乱笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://yossarian0916.github.io/2019/11/10/linux_structure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Yossarian42">
+      <meta itemprop="description" content="个人博客, 学习，记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乱笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux系统结构
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-11-10 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-10T00:00:00+08:00">2019-11-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-08-16 00:07:21" itemprop="dateModified" datetime="2021-08-16T00:07:21+08:00">2021-08-16</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Linux系统结构"><a href="#Linux系统结构" class="headerlink" title="Linux系统结构"></a>Linux系统结构</h1><p>Linux系统有4个主要部分：内核，shell，文件系统和应用程序。内核，shell和文件系统一起形成了基本的操作系统，它们使用户可以运行程序、管理文件并使用系统。</p>
+<p><img src="/../images/linux_structure.png" alt="linux structure"></p>
+<hr>
+<ol>
+<li><p>Linux内核</p>
+<p>内核是操作系统的核心，负责管理系统的进程、内存、设备驱动程序、文件和网络系统。</p>
+<p><img src="/../images/linux_kernel.jpg" alt="linux_kernel"></p>
+<p>**系统调用接口: **SCI层提供了某些机制执行从用户空间到内核的函数调用。SCI实际上是一个非常有用的函数调用多路复用和多路分解服务。</p>
+<ul>
+<li><p>内存管理</p>
+<p>Linux采用了虚拟内存的内存管理方式。Linux将内存划分为容易处理的“内存页”（对于大部分体系结构来说都是4KB）。Linux包括了管理内存的方式，以及物理和虚拟映射所使用的硬件机制。</p>
+<p>不过内存管理要管理的可不止4KB缓冲区。Linux提供了对4KB缓冲区的抽象。这种内存管理模式使用4KB缓冲区为基数，然后从中分配结构，并跟踪内存页使用情况，比如哪些内存页是满的，哪些页面没有完全使用，哪些页面为空。这样就允许该模式根据系统需要来动态调整内存使用。</p>
+<p>为了支持多个用户使用内存，有时会出现可用内存被消耗光的情况。因此，页面可以一处内存并放入磁盘中。这个过程称为交换，因为页面会从内存交换到硬盘上。</p>
+</li>
+<li><p>进程管理</p>
+<p>进程实际是某个特定应用程序的一个运行实体。在Linux系统中，能够同时运行多个进程，Linux通过在短时间间隔内轮流运行这些进程而实现“多任务”。这一短时间间隔称为“时间片”，让进程轮流运行的方法称为“进程调度”。</p>
+<p>进程调度控制进程对CPU的访问。当需要选择下一个进程运行时，由调度程序选择最值得运行的进程。可运行进程实际上是仅等待CPU资源的进程，如果某个进程在等待其他资源，着该进程是不可运行进程。Linux使用了比较简单的基于优先级的进程调度算法选择新的进程。</p>
+<p>通过多任务机制，每个进程可认为只有自己独占计算机，从而简化程序的编写。每个进程有自己单独的地址空间，并且</p>
+</li>
+<li><p>文件系统</p>
+</li>
+<li><p>设备驱动程序</p>
+</li>
+<li><p>网络接口（NET）</p>
+</li>
+</ul>
+<hr>
+</li>
+<li><p>Linux Shell</p>
+<p>…</p>
+<hr>
+</li>
+<li><p>Linux文件系统</p>
+<p>…</p>
+<hr>
+</li>
+<li><p>应用程序</p>
+<p>Linux系统一般都有一套称为应用程序的程序集，包括文本编辑器、编程语言、x window、Internet工具和数据库等。</p>
+<hr>
+</li>
+<li><p>内核参数</p>
+<p>Linux内核提供了一种通过/proc文件系统，在运行时访问内核内部数据结构、改变内核设置的机制。proc文件系统是一个伪文件系统，它只存在内存当中，而不占用外存空间。它以文件系统的方式为访问系统内核数据的操作提供接口。</p>
+<p>用户和应用程序可以通过/proc得到系统的信息，并可以改变内核的某些参数。由于系统的信息，如进程，是动态改变的，所以用户或应用程序读取/proc文件时，/proc文件系统是动态从系统内核读出所需信息并提交的。在/proc下有三个很重要的目录：/net，/scsi和/sys。/sys目录是可写的，可一通过它来访问或修改内核的参数，而/net和/scsi则依赖于内核配置。例如，如果系统不支持scsi，则scsi目录不存在。</p>
+<p>除了这些，还有一些以数字命名的目录，它们是进程目录。系统中当前运行的每一个进程都有对应的一个目录在/proc下，以进程的PID为目录名，它们是读取进程信息的接口。而/self目录则是读取进程本身的信息接口，是一个link，不同进程访问该目录是获得的信息是不同的，内容等价于/proc/本进程pid/。进程可以通过访问/proc/self来获取自己的系统信息，而不用每次都获取pid。</p>
+</li>
+</ol>
+<p>Reference:</p>
+<p>[1] <a target="_blank" rel="noopener" href="https://blog.csdn.net/hguisu/article/details/6122513#t7">Linux系统结构 详解</a></p>
+<p>[2] <a target="_blank" rel="noopener" href="https://blog.csdn.net/zdwzzu2006/article/details/7747977">Linux下/proc目录简介</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+              <a href="/tags/OS/" rel="tag"># OS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/10/05/GPU%E5%8A%A0%E9%80%9F%E7%89%88TensorFlow%E5%AE%89%E8%A3%85%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/" rel="prev" title="tensorflow-gpu installation">
+      <i class="fa fa-chevron-left"></i> tensorflow-gpu installation
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/12/24/linux_kernel_space/" rel="next" title="Linux内核空间">
+      Linux内核空间 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">Linux系统结构</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Yossarian42</p>
+  <div class="site-description" itemprop="description">个人博客, 学习，记录</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yossarian42</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<div class="moon-menu">
+  <div class="moon-menu-items">
+    
+    <div class="moon-menu-item" onclick="back2bottom()">
+      <i class='fas fa-chevron-down'></i>    </div>
+    
+    <div class="moon-menu-item" onclick="back2top()">
+      <i class='fas fa-chevron-up'></i>    </div>
+    
+  </div>
+  <div class="moon-menu-button">
+    <svg class="moon-menu-bg">
+      <circle class="moon-menu-cricle" cx="50%" cy="50%" r="44%"></circle>
+      <circle class="moon-menu-border" cx="50%" cy="50%" r="48%"></circle>
+    </svg>
+    <div class="moon-menu-content">
+      <div class="moon-menu-icon"><i class='fas fa-ellipsis-v'></i></div>
+      <div class="moon-menu-text"></div>
+    </div>
+  </div>
+</div><script src="/js/injector.js"></script>
+</body>
+</html>
