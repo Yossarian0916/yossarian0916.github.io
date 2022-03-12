@@ -148,6 +148,105 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://yossarian0916.github.io/2022/03/12/AOSP-1-intro/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Yossarian42">
+      <meta itemprop="description" content="个人博客, 学习，记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="乱笔">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/03/12/AOSP-1-intro/" class="post-title-link" itemprop="url">AOSP 入门</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-03-12 12:14:00 / Modified: 12:15:07" itemprop="dateCreated datePublished" datetime="2022-03-12T12:14:00+08:00">2022-03-12</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="AOSP-入门"><a href="#AOSP-入门" class="headerlink" title="AOSP 入门"></a>AOSP 入门</h1><h3 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a>源码下载</h3><h4 id="国内同步UTSC源"><a href="#国内同步UTSC源" class="headerlink" title="国内同步UTSC源"></a>国内同步UTSC源</h4><p>第一次同步数据量特别大，如果网络不稳定，中间失败就要从头再来了。所以我们提供了打包的 AOSP 镜像，为一个 tar 包，大约 16G（单文件 16G，注意你的磁盘格式要支持）。这样你 就可以通过 HTTP 的方式下载，该方法支持断点续传。</p>
+<p>下载地址 <a target="_blank" rel="noopener" href="http://mirrors.ustc.edu.cn/aosp-monthly/">http://mirrors.ustc.edu.cn/aosp-monthly/</a></p>
+<p>请注意对比 checksum。</p>
+<p>然后根据下文 已有仓库如何改用科大源 的方法更改同步地址。</p>
+<p>解压后用命令 repo sync 就可以把代码都 checkout 出来。</p>
+<p>Note: tar 包为定时从 <a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/aosp-monthly/">https://mirrors.tuna.tsinghua.edu.cn/aosp-monthly/</a> 下载。</p>
+<h4 id="科学同步-googlesource"><a href="#科学同步-googlesource" class="headerlink" title="科学同步 googlesource"></a>科学同步 googlesource</h4><p>按照 Google 官方教程 <a target="_blank" rel="noopener" href="https://source.android.com/source/downloading.html">https://source.android.com/source/downloading.html</a></p>
+<p><code>https://android.googlesource.com/platform/manifest</code> </p>
+<p>具体做法摘录如下（以防墙抽风）：</p>
+<p>首先下载 repo 工具。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir ~/bin</span><br><span class="line">PATH=~/bin:<span class="variable">$PATH</span></span><br><span class="line">curl https://storage.googleapis.com/git-repo-downloads/repo &gt; ~/bin/repo</span><br></pre></td></tr></table></figure>
+
+<p>然后建立一个工作目录（名字任意）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir WORKING_DIRECTORY</span><br><span class="line"><span class="built_in">cd</span> WORKING_DIRECTORY</span><br></pre></td></tr></table></figure>
+
+<p>初始化仓库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo init</span><br></pre></td></tr></table></figure>
+
+<p>同步源码树（以后只需执行这条命令来同步）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">repo sync</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="AOSP源码导入Android-Studio"><a href="#AOSP源码导入Android-Studio" class="headerlink" title="AOSP源码导入Android Studio"></a>AOSP源码导入Android Studio</h3><p>AOSP源码顶级目录下运行以下命令，生成google推荐的Idegen工具的配置文件<code>android.ipr</code>和<code>android.iml</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> build/envsetup.sh <span class="comment"># 在新终端下需要执行这一步</span></span><br><span class="line">mmma development/tools/idegen</span><br><span class="line">development/tools/idegen/idegen.sh</span><br></pre></td></tr></table></figure>
+
+<p><strong>过滤一些模块</strong><br> 如果把Android所有的源码全部导入到IDE里面去，工程将会非常大，而且会很耗时间，那么我们就可以把不需要的模块给过滤掉。<br> 打开<code>android.iml</code>文件，加入以下代码，修改<code>excludeFolder</code>的配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/.repo&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/abi&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/frameworks/base/docs&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/art&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/bionic&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/bootable&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/build&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/cts&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/dalvik&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/developers&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/development&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/device&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/docs&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/external&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/hardware&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/kernel-3.18&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/libcore&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/libnativehelper&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/ndk&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/out&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/pdk&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/platform_testing&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/prebuilts&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/rc_projects&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/sdk&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/system&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/tools&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/trusty&quot;</span>/&gt;</span><br><span class="line">&lt;excludeFolder url=<span class="string">&quot;file://<span class="variable">$MODULE_DIR</span>$/vendor&quot;</span>/&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这样我们就只导入了<code>frameworks</code>和<code>packages</code>的代码。</p>
+<p>AOSP工程项目很大，在导入源码到IDEA之前需要先修改IDEA的配置：<br> 修改内存大小：<br> 打开IDEA 菜单栏<code>Help</code> &gt;<code>Edit Custom VM Options</code>，添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-Xms1g </span><br><span class="line">-Xmx5g</span><br></pre></td></tr></table></figure>
+
+<p>修改文件大小限制，打开区分大小写选项:<br> 打开IDEA 菜单栏 <code>Help -&gt; Edit custom properties</code>， 添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">idea.max.intellisense.filesize=100000</span><br><span class="line">idea.case.sensitive.fs=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>NOTE: 重启IDEA使配置生效</p>
+</blockquote>
+<p>用IDEA找到AOSP目录下的<code>development/tools/idegen/android.ipr</code>文件，打开AOSP工程，耐心等待，索引需要一定时间</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://lug.ustc.edu.cn/wiki/mirrors/help/aosp/">AOSP(Android) 镜像使用帮助</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/3e322f20da5b">AOSP Intellij IDE 导入源码阅读</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="https://yossarian0916.github.io/2021/05/03/string-tricks/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -970,92 +1069,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://yossarian0916.github.io/2020/11/19/RMQ-ST-table/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yossarian42">
-      <meta itemprop="description" content="个人博客, 学习，记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="乱笔">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/19/RMQ-ST-table/" class="post-title-link" itemprop="url">RMQ-ST-table</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-11-19 04:03:26" itemprop="dateCreated datePublished" datetime="2020-11-19T04:03:26+08:00">2020-11-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-08-16 00:07:21" itemprop="dateModified" datetime="2021-08-16T00:07:21+08:00">2021-08-16</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Range-Minimum-Maximum-Query-RMQ"><a href="#Range-Minimum-Maximum-Query-RMQ" class="headerlink" title="Range Minimum/Maximum Query (RMQ)"></a>Range Minimum/Maximum Query (RMQ)</h1><p>RMQ对于给定长度n的数列A，询问区间数列A在（i,j）内最大最小值。</p>
-<p>解决方法：（A长度为n，q次查询）</p>
-<ol>
-<li>搜索    复杂度：O(n) - O(qn)</li>
-<li>线段树   预处理：O(n) - 查询：O(qlogn)</li>
-<li>Sparse table(ST) 预处理：O(nlogn) - 查询：O(q)</li>
-</ol>
-<h2 id="ST算法"><a href="#ST算法" class="headerlink" title="ST算法"></a>ST算法</h2><p>ST本质上是动态规划，适用的情况是数据不更新，因为更新需要重新建表，这种情况下就选择线段树啦。</p>
-<p>复杂度：建表O(nlogn)，查询O(1)</p>
-<h3 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h3><p><code>f[i][j]</code>保存每一块[i, i + $2^j$ - 1]的最大值，起点i、终点i + $2^j$ - 1共$2^j$个数</p>
-<p>[i, i + $2^j$ - 1]可以拆分成等长的2块，[i, i + $2^{j-1}$ - 1]和[i + $2^{j-1}$, i + $2^j$ - 1]，递归结构显现，可以用DP啦</p>
-<p><code>f[i][j]=max(f[i][j - 1], f[i + (1&lt;&lt;(j-1))][j - 1])</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// j上限设为20</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt; <span class="number">20</span>; j++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i + (<span class="number">1</span>&lt;&lt;(j-<span class="number">1</span>)) &lt;= size; i++) &#123;</span><br><span class="line">        dp[i][j] = Math.max(dp[i][j - <span class="number">1</span>], dp[i + (<span class="number">1</span>&lt;&lt;(j-<span class="number">1</span>))][j - <span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>dp[i][0]</code>记录的是原来数组的值，<code>i</code>从1开始是为了query时候方便，不用再改写成从0开始的index</p>
-<h3 id="Query"><a href="#Query" class="headerlink" title="Query"></a>Query</h3><p>[l, r]区间可以按照[i, i + $2^j$ - 1]的模式划分成2块，[l, l + $2^k$ - 1]和[r - $2^k$ + 1, r]，</p>
-<p>其中k = $\lfloor log_2(r - l + 1)\rfloor$ 向下取整</p>
-<p><img src="/2020/11/19/RMQ-ST-table/rmq_st_query.png" alt="query示意图"></p>
-<p>2段小区间长度相等，记为len，证明小区间有重叠：</p>
-<p>$\lfloor log_2(len)\rfloor$ &gt;= $log_2(len)$ - 1，所以$2^{\lfloor log_2(len)\rfloor}$ &gt;= len/2, 这样2段小区间便有了重叠，保证query操作的正确性</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">query</span><span class="params">(<span class="keyword">int</span> l, <span class="keyword">int</span> r)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> k = (<span class="keyword">int</span>) (Math.log(r - l + <span class="number">1</span>) / Math.log(<span class="number">2</span>));</span><br><span class="line">    <span class="keyword">return</span> Math.max(dp[l][k], dp[r - (<span class="number">1</span>&lt;&lt;k) + <span class="number">1</span>][k]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1125,13 +1138,13 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -1158,7 +1171,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
